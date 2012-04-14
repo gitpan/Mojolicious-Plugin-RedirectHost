@@ -1,5 +1,6 @@
 package Mojolicious::Plugin::RedirectHost;
 use Mojo::Base 'Mojolicious::Plugin';
+use Mojo::URL;
 
 # where to look for options
 my $CONFIG_KEY   = 'redirect_host';
@@ -29,21 +30,31 @@ sub register {
       # don't need redirection
       return if $url->host eq $options{host};
 
-      # main host
-      $url->host(delete local $options{host});
-      
+      # main host        
+      $url->host($options{host});
+        #$url->host(delete local $options{host});
+
       # code      
-      $c->res->code(delete local $options{code} || $DEFAULT_CODE);
-      
-      foreach my $what (keys %options) {
-        $url->$what($options{$what})     if $options{$what};
+      $c->res->code($options{code} || $DEFAULT_CODE);
+        #$c->res->code(delete local $options{code} || $DEFAULT_CODE);
+
+      if (ref $options{url} eq 'HASH') {
+
+        # замещаем значения
+        foreach my $what (keys %{$options{url}}) {
+          $url->$what($options{url}->{$what}) if $options{url}->{$what};
+        }
       }
-=pod      
-      $url->scheme($options{scheme}) if $options{scheme};
-      $url->port($options{port})     if $options{port};
-      $url->path($options{path})     if $options{path};
-      $url->query($options{query})   if $options{query};
-=cut
+      elsif(ref $options{url}) {
+        # replace a whole url with a passed Mojo::URL object
+        $url = $options{url};
+      }
+      elsif ($options{url}) {
+        # replace a whole url with a new one
+        $url = Mojo::URL->new($options{url});
+      }
+
+
       $c->redirect_to($url->to_string);
     }
   );
@@ -58,11 +69,11 @@ Mojolicious::Plugin::RedirectHost - Redirects requests from mirrors to the main 
 
 =head1 VERSION
 
-Version 0.01_01
+Version 0.01_02
 
 =cut
 
-our $VERSION = '0.01_01';
+our $VERSION = '0.01_02';
 
 
 =head1 SYNOPSIS
@@ -77,17 +88,37 @@ I have uploaded this module to CPAN only for test purposes.
 Теперь любые запросы, приходящие на зеркало (тобишь если заголовок запроса "Host" не совпадает с параметром "host"), будут переадресовываться на основной хост, по умолчанию со статусом 301.
 Это для того, чтобы Яндекс, Шмандекс и Гугл не разбавляли показатели сайта.
 
-Поведение переадресатора можно изменить: все параметры, кроме code, становятся методами объекта Mojo::URL
+Поведение переадресатора можно изменить: все параметры в хеше 'url' становятся методами объекта Mojo::URL, те, которые не затираются - берутся с текущего запроса
+  
+  # 302: http://mirror.main.host/path?query -> http://main.host/path?query
+  $app->plugin('RedirectHost', host => 'main.host', code => 302);
+  
+Можно изменить только некоторые из текущего запроса {}
 
-  # 302: http://mirror.main.host/foo -> https://main.host:8000/bar?a=b
+  # http://mirror.main.host/foo -> https://main.host/foo?a=b
   $app->plugin(
     'RedirectHost',
-    host   => 'main.host',
-    code   => 302,
-    scheme => 'https',
-    port   => 8000,
-    path   => '/bar',
-    query  => {a => 'b'}
+    host   => 'main.host',    
+    url => { scheme => 'https', query  => {a => 'b'} }
+  );
+  
+Полность указать новый запрос (строкой)
+
+  # http://mirror.main.host/foo -> http://google.com
+  $app->plugin(
+    'RedirectHost',
+    host   => 'main.host',    
+    url => 'http://google.com'
+  );
+  
+  
+Указать новый запрос объектом Mojo::URL
+
+  # http://mirror.main.host/foo -> http://google.com
+  $app->plugin(
+    'RedirectHost',
+    host => 'main.host',    
+    url  => Mojo::URL->new('http://google.com')
   );
 
 Необходимые настройки можно указать в конфиге по ключу "redirect_host".

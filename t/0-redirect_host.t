@@ -35,7 +35,7 @@ DEFAULTS: {
 }
 
 # another way to redirect
-PARAMS: {
+PARAMS_URL_HASH: {
   my $t   = Test::Mojo->new();
   my $app = Mojolicious->new();
 
@@ -43,10 +43,12 @@ PARAMS: {
     'RedirectHost',
     host   => $HOST,
     code   => 302,
-    scheme => 'https',
-    port   => 8000,
-    path   => '/bar',
-    query  => {a => 'b'}
+    url => {
+      scheme => 'https',
+      port   => 8000,
+      path   => '/bar',
+      query  => {a => 'b'},
+    },    
   );
 
   $t->app($app)->get_ok('/foo', {Host => 'mirror223'})->status_is(302)
@@ -55,6 +57,41 @@ PARAMS: {
   # не забыли ли локализовать удаляемый параметр?
   $t->app($app)->get_ok('/foo', {Host => 'mirror223'})->status_is(302);
 }
+
+# another way to redirect
+PARAMS_URL_STRING: {
+  my $t   = Test::Mojo->new();
+  my $app = Mojolicious->new();
+
+  $app->plugin(
+    'RedirectHost',
+    host => $HOST,
+    url  => 'http://google.com/f?b',
+  );
+
+  $t->app($app)->get_ok('/foo', {Host => 'mirror223'})->header_is(Location => "http://google.com/f?b");
+
+}
+
+
+# another way to redirect
+PARAMS_URL_OBJ: {
+  my $t   = Test::Mojo->new();
+  my $app = Mojolicious->new();
+
+  $app->plugin(
+    'RedirectHost',
+    host => $HOST,
+    url  => Mojo::URL->new('http://mail.ru'),
+  );
+
+  $t->app($app)->get_ok('/foo', {Host => 'mirror223'})->header_is(Location => "http://mail.ru");
+
+}
+
+
+
+
 
 # app->config->{redirect_host}
 CONFIG: {
