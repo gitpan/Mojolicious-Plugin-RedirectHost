@@ -3,7 +3,7 @@ use utf8;
 use Mojo::Base -strict;
 require Mojolicious;
 
-use Test::More 'no_plan';
+use Test::More tests => 18;
 use Test::Mojo;
 use Mojo::Util 'url_escape';
 
@@ -47,7 +47,7 @@ PARAMS_URL_HASH: {
       scheme => 'https',
       port   => 8000,
       path   => '/bar',
-      query  => {a => 'b'},
+      query  => [a => 'b'],
     },    
   );
 
@@ -55,7 +55,7 @@ PARAMS_URL_HASH: {
     ->header_is(Location => "https://$HOST:8000/bar?a=b");
 
   # не забыли ли локализовать удаляемый параметр?
-  $t->app($app)->get_ok('/foo', {Host => 'mirror223'})->status_is(302);
+  $t->app($app)->get_ok('/foo', {Host => 'mirror223'})->status_is(302);  
 }
 
 # another way to redirect
@@ -103,6 +103,7 @@ CONFIG: {
 
   $t->app($app)->get_ok('/foo?bar', {Host => 'mirror223'})->status_is(301)
     ->header_is(Location => "http://$HOST/foo?bar");
+
 }
 
 

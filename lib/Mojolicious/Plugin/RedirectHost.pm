@@ -30,26 +30,35 @@ sub register {
       # don't need redirection
       return if $url->host eq $options{host};
 
-      # main host        
+      # main host
       $url->host($options{host});
-        #$url->host(delete local $options{host});
+      #$url->host(delete local $options{host});
 
-      # code      
+      # code
       $c->res->code($options{code} || $DEFAULT_CODE);
-        #$c->res->code(delete local $options{code} || $DEFAULT_CODE);
+      #$c->res->code(delete local $options{code} || $DEFAULT_CODE);
 
       if (ref $options{url} eq 'HASH') {
+
+        # query
+        if (ref $options{url}->{query} eq 'ARRAY') {
+          my @query = @{delete $options{url}->{query}};
+          $url->query(@query);
+
+        }
 
         # замещаем значения
         foreach my $what (keys %{$options{url}}) {
           $url->$what($options{url}->{$what}) if $options{url}->{$what};
         }
       }
-      elsif(ref $options{url}) {
+      elsif (ref $options{url}) {
+
         # replace a whole url with a passed Mojo::URL object
         $url = $options{url};
       }
       elsif ($options{url}) {
+
         # replace a whole url with a new one
         $url = Mojo::URL->new($options{url});
       }
@@ -65,44 +74,80 @@ sub register {
 
 =head1 NAME
 
-Mojolicious::Plugin::RedirectHost - Redirects requests from mirrors to the main host (usefull for SEO)
+Mojolicious::Plugin::RedirectHost - Redirects requests from mirrors to the main host (useful for SEO)
 
 =head1 VERSION
 
-Version 0.01_02
+Version 0.02
 
 =cut
 
-our $VERSION = '0.01_02';
+our $VERSION = '0.02';
 
 
 =head1 SYNOPSIS
 
-!!! AHTUNG. This is the development release, documentation will be available soon (or may be not).
-I have uploaded this module to CPAN only for test purposes.
 
-
-  # 301: http://mirror.main.host/path?query -> http://main.host/path?query
+Generate 301 redirect from C<http://mirror.main.host/path?query> to C<http://main.host/path?query>
+  
+  # Mojolicious
   $app->plugin('RedirectHost', host => 'main.host');
+  
+  # Mojolicious::Lite
+  plugin RedirectHost => { host => 'main.host' };
 
-Теперь любые запросы, приходящие на зеркало (тобишь если заголовок запроса "Host" не совпадает с параметром "host"), будут переадресовываться на основной хост, по умолчанию со статусом 301.
-Это для того, чтобы Яндекс, Шмандекс и Гугл не разбавляли показатели сайта.
+All requests with C<Host> header not equal to the C<host> option will be redirected to the main host
 
-Поведение переадресатора можно изменить: все параметры в хеше 'url' становятся методами объекта Mojo::URL, те, которые не затираются - берутся с текущего запроса
+=head1 OPTIONS/USAGE
+
+=head2 C<host>
+
+Main domain. All requests to the mirrors will be redirected to the C<host> (domain)
+This option is required. Without it plugin do nothing
+
+=head2 C<code>
+
+  $app->plugin('RedirectHost', host => 'main.host', code => 302);
+
+Type of redirection. Default 301 (Moved Permanently)
+
+=head2 C<url>
+
+All keys of the C<url> hash (except C<query>) become L<Mojo::URL> object's methods, regarding old request
   
   # 302: http://mirror.main.host/path?query -> http://main.host/path?query
   $app->plugin('RedirectHost', host => 'main.host', code => 302);
-  
-Можно изменить только некоторые из текущего запроса {}
+
+You can replace some parts of the old request, for example scheme (C<https>), or add extra query parameters C<?a=b> to the end
 
   # http://mirror.main.host/foo -> https://main.host/foo?a=b
   $app->plugin(
     'RedirectHost',
     host   => 'main.host',    
-    url => { scheme => 'https', query  => {a => 'b'} }
+    url => { scheme => 'https', query  => [{a => 'b'}] }
   );
+
+
+How to use url->{query} option (pay attention to '[]')
+
+  # append ?a=old&foo=bar -> ?a=old&foo=bar&a=b
+  url => {query => [{a => 'b'}]
+
+  # merge ?a=old&foo=bar -> ?a=b&foo=bar
+  url => {query => [[a => 'b']]
   
-Полность указать новый запрос (строкой)
+  # replace ?a=old&foo=bar -> ?a=b
+  url => {query => [a => 'b']}
+  
+  # this works too
+  url => {query => [Mojo::Parameters->new(a => 'b')]}
+  
+  # Wrong!!! Don't do this. Don't forget []
+  url => {query => Mojo::Parameters->new(a => 'b')}
+
+See L<Mojo::URL/query>
+
+You can pass a string to the C<url> part of options
 
   # http://mirror.main.host/foo -> http://google.com
   $app->plugin(
@@ -111,8 +156,8 @@ I have uploaded this module to CPAN only for test purposes.
     url => 'http://google.com'
   );
   
-  
-Указать новый запрос объектом Mojo::URL
+
+New url as an L<Mojo::URL> object
 
   # http://mirror.main.host/foo -> http://google.com
   $app->plugin(
@@ -121,11 +166,17 @@ I have uploaded this module to CPAN only for test purposes.
     url  => Mojo::URL->new('http://google.com')
   );
 
-Необходимые настройки можно указать в конфиге по ключу "redirect_host".
+=head1 CONFIG
+
+You can pass options to the plugin with the help of your config. Use C<redirect_host> key.
 
   $app->config(redirect_host => {host => 'main.host'});
 
-=head1 SUBROUTINES/METHODS
+=head1 METHODS
+
+=head2 register
+
+Register. См L<Mojolicious::Plugin/register>
 
 =head1 TODO
 

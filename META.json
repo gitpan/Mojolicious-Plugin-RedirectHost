@@ -1,5 +1,5 @@
 {
-   "abstract" : "Redirects requests from mirrors to the main host (usefull for SEO)",
+   "abstract" : "Redirects requests from mirrors to the main host (useful for SEO)",
    "author" : [
       "Alex <alexbyk@cpan.org>"
    ],
@@ -37,6 +37,6 @@
          }
       }
    },
-   "release_status" : "testing",
-   "version" : "0.01_02"
+   "release_status" : "stable",
+   "version" : "0.02"
 }
