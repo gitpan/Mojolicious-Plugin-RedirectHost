@@ -1,6 +1,6 @@
 Changes
 lib/Mojolicious/Plugin/RedirectHost.pm
-lib/Mojolicious/Plugin/RedirectHost/ru_tutorial.pod
+lib/Mojolicious/Plugin/RedirectHost/RuTutorial.pod
 Makefile.PL
 MANIFEST			This list of files
 README
