@@ -3,7 +3,7 @@ package Mojolicious::Plugin::RedirectHost;
 use Mojo::Base 'Mojolicious::Plugin';
 use Mojo::URL;
 
-our $VERSION = '0.03_2';
+our $VERSION = '0.04';
 
 # where to look for options
 my $CONFIG_KEY   = 'redirect_host';
@@ -35,10 +35,12 @@ sub register {
 
       # main host
       $url->host($options{host});
+
       #$url->host(delete local $options{host});
 
       # code
       $c->res->code($options{code} || $DEFAULT_CODE);
+
       #$c->res->code(delete local $options{code} || $DEFAULT_CODE);
 
       if (ref $options{url} eq 'HASH') {
