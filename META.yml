@@ -3,7 +3,7 @@ abstract: 'Redirects requests from mirrors to the main host (useful for SEO)'
 author:
   - 'alexbyk <alex@alexbyk.com>'
 build_requires:
-  Test::More: '0'
+  Test::More: '0.88'
 configure_requires:
   ExtUtils::MakeMaker: '6.30'
 dynamic_config: 0
@@ -19,4 +19,4 @@ requires:
 resources:
   bugtracker: http://github.com/alexbyk/Mojolicious-Plugin-RedirectHost/issues
   repository: http://github.com/alexbyk/Mojolicious-Plugin-RedirectHost
-version: '1.01'
+version: '1.02'
