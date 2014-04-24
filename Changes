@@ -1,5 +1,7 @@
 Revision history for Mojolicious-Plugin-RedirectHost
 
+1.01      2014-04-24 22:53:23+03:00 Europe/Kiev
+
 1.00      2014-04-22 05:48:07+03:00 Europe/Kiev
 
 - added silent option
