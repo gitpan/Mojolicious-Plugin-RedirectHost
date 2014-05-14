@@ -1,5 +1,8 @@
 Revision history for Mojolicious-Plugin-RedirectHost
 
+1.05      2014-05-14 16:38:27+03:00 Europe/Kiev
+- added examples
+
 1.04      2014-05-14 15:00:37+03:00 Europe/Kiev
 - more explanation in docs
 

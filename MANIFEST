@@ -10,6 +10,7 @@ README
 README.md
 cpanfile
 dist.ini
+examples/ExampleApp
 lib/Mojolicious/Plugin/RedirectHost.pm
 t/0-error_log.t
 t/0-redirect_host.t

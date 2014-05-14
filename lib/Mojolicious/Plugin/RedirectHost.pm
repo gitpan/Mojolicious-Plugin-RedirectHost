@@ -3,7 +3,7 @@ package Mojolicious::Plugin::RedirectHost;
 use Mojo::Base 'Mojolicious::Plugin';
 use Mojo::URL;
 
-our $VERSION = '1.04';    # VERSION
+our $VERSION = '1.05';    # VERSION
 
 # where to look for options
 my $CONFIG_KEY   = 'redirect_host';
@@ -73,7 +73,7 @@ Mojolicious::Plugin::RedirectHost - Redirects requests from mirrors to the main 
 
 =head1 VERSION
 
-version 1.04
+version 1.05
 
 =head1 SYNOPSIS
 
@@ -85,10 +85,11 @@ Generates 301 redirect from C<http://mirror.main.host/path?query> to C<http://ma
   # Mojolicious::Lite
   plugin RedirectHost => { host => 'main.host' };
 
-All requests with C<Host> header that is not equal to the C<host> option will be redirected to the main host
+All requests with a C<Host> header that is not equal to the C<host> option will be redirected to the main host (and to the same port, as it was in original request)
+Don't forget about the port (don't expect something great from http://google.com:3000)
 
-	www.main.host       => main.host
-	another.io/foo?bar  => main.host/foo?bar
+	http://www.main.host:3000       => http://main.host:3000
+	http://another.io:3000/foo?bar  => http://main.host:3000/foo?bar
 	etc...
 
 You can point as many domains to your App by DNS, as you want. It doesn't matter, all of them will become a mirror. An equivalent apache .htaccess file looks like
@@ -98,6 +99,8 @@ You can point as many domains to your App by DNS, as you want. It doesn't matter
 
 It would be better if you'll be using per mode config files (your_app.production.conf etc). This would make possible
 to redirect only in production enviropment (but do nothing while coding your app)
+
+Look at the `examples` directory of this distribution for a full application example
 
 =head1 OPTIONS/USAGE
 
