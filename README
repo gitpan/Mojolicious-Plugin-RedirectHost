@@ -1,7 +1,7 @@
 
 
 This archive contains the distribution Mojolicious-Plugin-RedirectHost,
-version 1.03:
+version 1.04:
 
   Redirects requests from mirrors to the main host (useful for SEO)
 

@@ -19,4 +19,4 @@ requires:
 resources:
   bugtracker: http://github.com/alexbyk/Mojolicious-Plugin-RedirectHost/issues
   repository: http://github.com/alexbyk/Mojolicious-Plugin-RedirectHost
-version: '1.03'
+version: '1.04'
